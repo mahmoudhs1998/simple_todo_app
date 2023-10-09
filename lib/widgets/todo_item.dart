@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:modern_todo/constants/colors.dart';
+import 'package:modern_todo/models/todo.dart';
 
 class TodoItem extends StatelessWidget {
-  const TodoItem({super.key});
+  const TodoItem({super.key , required this.todoModel});
+  final TodoModel todoModel;
 
   @override
   Widget build(BuildContext context) {
@@ -14,16 +16,19 @@ class TodoItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        leading: const Icon(
+        leading: todoModel.isDone? const Icon(
           Icons.check_box,
           color: tdBlue,
-        ),
-        title: const Text(
-          "was there data here",
+        ) :const Icon(
+          Icons.check_box_outline_blank,
+          color: tdBlue,
+        ) ,
+        title:  Text(
+          todoModel.todoText,
           style: TextStyle(
             color: tdBlack,
             fontSize: 16,
-            decoration: TextDecoration.lineThrough,
+            decoration: todoModel.isDone ? TextDecoration.lineThrough :null ,
           ),
         ),
         trailing: GestureDetector(

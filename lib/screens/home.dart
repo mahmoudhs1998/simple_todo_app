@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modern_todo/constants/colors.dart';
 import 'package:modern_todo/widgets/customAppBar.dart';
-import 'package:modern_todo/widgets/custom_search_bar.dart';
 import 'package:modern_todo/widgets/todo_item.dart';
 
 import '../models/todo.dart';
@@ -15,11 +14,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final todoList = TodoModel.todoList();
+  List<TodoModel> _foundTodo = [];
   final todoController = TextEditingController();
   @override
   void initState() {
-    // TODO: implement initState
-
+    
+    _foundTodo = todoList;
     todoList.clear();
     super.initState();
   }
@@ -33,40 +33,7 @@ class _HomeState extends State<Home> {
         elevation: 0,
         child: const Icon(Icons.add),
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: TextField(
-                      controller: todoController,
-                      // maxLines: 6,
-                      onSubmitted: (value) {
-                        _addTodoItem(value);
-                        Navigator.of(context).pop();
-                      },
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(left: 8, top: 4),
-                        border: InputBorder.none,
-                        hintText: 'todo',
-                        hintStyle: TextStyle(color: tdGrey),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
+          addTodo(context);
         },
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -76,7 +43,8 @@ class _HomeState extends State<Home> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CustomSearchBar(),
+              //CustomSearchBar(),
+              search(),
               const SizedBox(
                 height: 40,
               ),
@@ -87,7 +55,7 @@ class _HomeState extends State<Home> {
               const SizedBox(
                 height: 30,
               ),
-              for (TodoModel todo in todoList)
+              for (TodoModel todo in _foundTodo)
                 TodoItem(
                   todoModel: todo,
                   onTodoChanged: _handleTodoChanged,
@@ -96,6 +64,43 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<dynamic> addTodo(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: TextField(
+                controller: todoController,
+                // maxLines: 6,
+                onSubmitted: (value) {
+                  _addTodoItem(value);
+                  Navigator.of(context).pop();
+                },
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.only(left: 8, top: 4),
+                  border: InputBorder.none,
+                  hintText: 'todo',
+                  hintStyle: TextStyle(color: tdGrey),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -119,5 +124,45 @@ class _HomeState extends State<Home> {
     setState(() {
       todoList.removeWhere((item) => item.id == id);
     });
+  }
+
+  void searchFilter(String query) {
+    List<TodoModel> results = [];
+    if (query.isEmpty) {
+      results = todoList;
+    } else {
+      // when something entered in search field:
+      results = todoList
+          .where((item) =>
+              item.todoText.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+    setState(() {
+      _foundTodo = results;
+    });
+  }
+
+  Widget search() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: TextField(
+        onChanged: (value) => searchFilter(value),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.all(0),
+          prefixIcon: Icon(
+            Icons.search,
+            size: 25,
+          ),
+          prefixIconConstraints: BoxConstraints(maxHeight: 20, maxWidth: 25),
+          border: InputBorder.none,
+          hintText: 'Search',
+          hintStyle: TextStyle(color: tdGrey),
+        ),
+      ),
+    );
   }
 }

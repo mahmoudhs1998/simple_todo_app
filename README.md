@@ -1,6 +1,6 @@
-# modern_todo
+# simple_todo
 
-A new Flutter project.
+A simple todo app using setState.
 
 ## Getting Started
 

@@ -1,7 +1,7 @@
 class TodoModel {
   final String todoText;
   final String id;
-  final bool isDone;
+  bool isDone;
 
   TodoModel({
     required this.todoText,
